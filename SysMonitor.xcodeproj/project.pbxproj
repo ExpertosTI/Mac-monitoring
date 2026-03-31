@@ -7,19 +7,50 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1000001 /* SysMonitorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001; };
-		A1000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002; };
-		A1000003 /* SystemMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003; };
-		A1000004 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004; };
+		A1000001 /* SysMonitorApp.swift in Sources */   = {isa = PBXBuildFile; fileRef = A2000001; };
+		A1000002 /* AppDelegate.swift in Sources */     = {isa = PBXBuildFile; fileRef = A2000002; };
+		A1000003 /* SystemMonitor.swift in Sources */   = {isa = PBXBuildFile; fileRef = A2000003; };
+		A1000004 /* DetailView.swift in Sources */      = {isa = PBXBuildFile; fileRef = A2000004; };
+		B1000001 /* Preferences.swift in Sources */     = {isa = PBXBuildFile; fileRef = B2000001; };
+		B1000002 /* ProcessesView.swift in Sources */   = {isa = PBXBuildFile; fileRef = B2000002; };
+		B1000003 /* SettingsView.swift in Sources */    = {isa = PBXBuildFile; fileRef = B2000003; };
+		F1000001 /* Metal.framework in Frameworks */    = {isa = PBXBuildFile; fileRef = F2000001; };
+		F1000002 /* WidgetKit.framework in Frameworks */= {isa = PBXBuildFile; fileRef = F2000002; };
+		W1000001 /* SysMonitorWidget.swift in Sources */= {isa = PBXBuildFile; fileRef = W2000001; };
+		W1000010 /* SysMonitorWidget.appex in Embed */  = {isa = PBXBuildFile; fileRef = W2000010; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		WF100001 /* IOKit.framework in Frameworks */    = {isa = PBXBuildFile; fileRef = WF200001; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		E5000001 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				W1000010 /* SysMonitorWidget.appex in Embed */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		A2000001 /* SysMonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SysMonitorApp.swift; sourceTree = "<group>"; };
-		A2000002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		A2000003 /* SystemMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitor.swift; sourceTree = "<group>"; };
-		A2000004 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
-		A2000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A2000010 /* SysMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SysMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000001 /* SysMonitorApp.swift */   = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SysMonitorApp.swift;   sourceTree = "<group>"; };
+		A2000002 /* AppDelegate.swift */     = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift;     sourceTree = "<group>"; };
+		A2000003 /* SystemMonitor.swift */   = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitor.swift;   sourceTree = "<group>"; };
+		A2000004 /* DetailView.swift */      = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift;      sourceTree = "<group>"; };
+		A2000005 /* Info.plist */            = {isa = PBXFileReference; lastKnownFileType = text.plist.xml;   path = Info.plist;            sourceTree = "<group>"; };
+		A2000010 /* SysMonitor.app */        = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SysMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2000001 /* Preferences.swift */     = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift;    sourceTree = "<group>"; };
+		B2000002 /* ProcessesView.swift */   = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessesView.swift;  sourceTree = "<group>"; };
+		B2000003 /* SettingsView.swift */    = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift;   sourceTree = "<group>"; };
+		F2000001 /* Metal.framework */       = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework;   path = System/Library/Frameworks/Metal.framework;   sourceTree = SDKROOT; };
+		F2000002 /* WidgetKit.framework */   = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		W2000001 /* SysMonitorWidget.swift */= {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SysMonitorWidget.swift; sourceTree = "<group>"; };
+		W2000002 /* WidgetInfo.plist */      = {isa = PBXFileReference; lastKnownFileType = text.plist.xml;   path = Info.plist;            sourceTree = "<group>"; };
+		W2000010 /* SysMonitorWidget.appex */= {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = SysMonitorWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		WF200001 /* IOKit.framework */       = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -27,7 +58,9 @@
 			isa = PBXGroup;
 			children = (
 				A3000002 /* SysMonitor */,
+				W3000001 /* SysMonitorWidget */,
 				A3000003 /* Products */,
+				A3000004 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -38,6 +71,9 @@
 				A2000002 /* AppDelegate.swift */,
 				A2000003 /* SystemMonitor.swift */,
 				A2000004 /* DetailView.swift */,
+				B2000001 /* Preferences.swift */,
+				B2000002 /* ProcessesView.swift */,
+				B2000003 /* SettingsView.swift */,
 				A2000005 /* Info.plist */,
 			);
 			path = SysMonitor;
@@ -47,8 +83,28 @@
 			isa = PBXGroup;
 			children = (
 				A2000010 /* SysMonitor.app */,
+				W2000010 /* SysMonitorWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A3000004 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F2000001 /* Metal.framework */,
+				F2000002 /* WidgetKit.framework */,
+				WF200001 /* IOKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		W3000001 /* SysMonitorWidget */ = {
+			isa = PBXGroup;
+			children = (
+				W2000001 /* SysMonitorWidget.swift */,
+				W2000002 /* Info.plist */,
+			);
+			path = SysMonitorWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -60,15 +116,30 @@
 			buildPhases = (
 				A5000001 /* Sources */,
 				A5000002 /* Frameworks */,
+				E5000001 /* Embed App Extensions */,
 			);
-			buildRules = (
-			);
+			buildRules = ();
 			dependencies = (
+				X1000001 /* SysMonitorWidget dependency */,
 			);
 			name = SysMonitor;
 			productName = SysMonitor;
 			productReference = A2000010;
 			productType = "com.apple.product-type.application";
+		};
+		W4000001 /* SysMonitorWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = W6000001;
+			buildPhases = (
+				W5000001 /* Sources */,
+				W5000002 /* Frameworks */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = SysMonitorWidget;
+			productName = SysMonitorWidget;
+			productReference = W2000010;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -84,16 +155,14 @@
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = es;
 			hasScannedForEncodings = 0;
-			knownRegions = (
-				es,
-				Base,
-			);
+			knownRegions = (es, Base);
 			mainGroup = A3000001;
 			productRefGroup = A3000003;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				A4000001 /* SysMonitor */,
+				W4000001 /* SysMonitorWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -107,6 +176,17 @@
 				A1000002,
 				A1000003,
 				A1000004,
+				B1000001,
+				B1000002,
+				B1000003,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		W5000001 /* Widget Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				W1000001,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,10 +197,38 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1000001 /* Metal.framework */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		W5000002 /* Widget Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F1000002 /* WidgetKit.framework */,
+				WF100001 /* IOKit.framework */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		X1000001 /* SysMonitorWidget dependency */ = {
+			isa = PBXTargetDependency;
+			target = W4000001;
+			targetProxy = X2000001;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXContainerItemProxy section */
+		X2000001 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A7000001;
+			proxyType = 1;
+			remoteGlobalIDString = W4000001;
+			remoteInfo = SysMonitorWidget;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin XCBuildConfiguration section */
 		A8000001 /* Debug */ = {
@@ -134,10 +242,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)");
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
@@ -166,22 +271,18 @@
 			};
 			name = Release;
 		};
-		A8000003 /* Debug */ = {
+		A8000003 /* SysMonitor Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SysMonitor/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2026 Renace Tech";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks");
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = tech.renace.SysMonitor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -189,24 +290,58 @@
 			};
 			name = Debug;
 		};
-		A8000004 /* Release */ = {
+		A8000004 /* SysMonitor Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SysMonitor/Info.plist;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2026 Renace Tech";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks");
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = tech.renace.SysMonitor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		W8000001 /* Widget Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SysMonitorWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../../../../Frameworks", "@executable_path/../../Frameworks");
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = tech.renace.SysMonitor.SysMonitorWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		W8000002 /* Widget Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SysMonitorWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../../../../Frameworks", "@executable_path/../../Frameworks");
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = tech.renace.SysMonitor.SysMonitorWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -215,21 +350,21 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A6000001 /* Build configuration list for PBXProject */ = {
+		A6000001 /* Project config list */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (
-				A8000001,
-				A8000002,
-			);
+			buildConfigurations = (A8000001, A8000002);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A6000003 /* Build configuration list for PBXNativeTarget */ = {
+		A6000003 /* SysMonitor config list */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (
-				A8000003,
-				A8000004,
-			);
+			buildConfigurations = (A8000003, A8000004);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		W6000001 /* Widget config list */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (W8000001, W8000002);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};

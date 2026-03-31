@@ -1,112 +1,205 @@
 import SwiftUI
-import ServiceManagement
 
-// RAM threshold above which the process list auto-appears
-private let ramAlertThreshold: Double = 70
+// MARK: - Tab enum
+
+enum AppTab: String, CaseIterable {
+    case overview  = "Resumen"
+    case processes = "Procesos"
+    case settings  = "Ajustes"
+    var icon: String {
+        switch self {
+        case .overview:  return "chart.bar.fill"
+        case .processes: return "list.bullet"
+        case .settings:  return "gearshape.fill"
+        }
+    }
+}
+
+// MARK: - Root
 
 struct DetailView: View {
     @ObservedObject var monitor: SystemMonitor
-    @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
-    @State private var showProcesses = false
-
-    var ramIsHigh: Bool { monitor.ramUsagePercent >= ramAlertThreshold }
+    @StateObject private var prefs = Preferences.shared
+    @State private var selectedTab: AppTab = .overview
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 0) {
-                header
-                Divider()
-                ringGrid
-                Divider()
-                networkSection
-                Divider()
-
-                // Process section: always visible toggle, auto-expands when RAM is high
-                processToggleRow
-
-                if showProcesses {
-                    Divider()
-                    processSection
-                        // Fetch once on appear, then every 3s while visible
-                        .task {
-                            await monitor.fetchTopProcesses()
-                            while !Task.isCancelled {
-                                try? await Task.sleep(nanoseconds: 3_000_000_000)
-                                await monitor.fetchTopProcesses()
-                            }
-                        }
+        VStack(spacing: 0) {
+            header
+            tabBar
+            Divider()
+            Group {
+                switch selectedTab {
+                case .overview:  OverviewTab(monitor: monitor)
+                case .processes: ProcessesView(monitor: monitor)
+                case .settings:  SettingsView(monitor: monitor, prefs: prefs)
                 }
-
-                Divider()
-                settingsRow
             }
         }
         .frame(width: 340)
         .background(.regularMaterial)
-        .onAppear {
-            // Auto-expand when RAM is already high
-            if ramIsHigh { showProcesses = true }
-        }
-        .onChange(of: monitor.ramUsagePercent) { _, newValue in
-            if newValue >= ramAlertThreshold && !showProcesses {
-                withAnimation { showProcesses = true }
-            }
-        }
     }
-
-    // MARK: - Header
 
     private var header: some View {
         HStack(spacing: 8) {
             Image(systemName: "waveform.path.ecg")
-                .foregroundStyle(.blue.gradient)
-                .font(.title3)
-            Text("SysMonitor")
-                .font(.headline)
+                .foregroundStyle(.blue.gradient).font(.title3)
+            Text("SysMonitor").font(.headline)
             Spacer()
-            Text("renace.tech")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Capsule().fill(.secondary.opacity(0.15)))
+            Label(monitor.uptime, systemImage: "clock")
+                .font(.caption2).foregroundColor(.secondary)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 16).padding(.vertical, 10)
     }
 
-    // MARK: - Rings
+    private var tabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(AppTab.allCases, id: \.self) { tab in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.18)) { selectedTab = tab }
+                } label: {
+                    VStack(spacing: 3) {
+                        Image(systemName: tab.icon).font(.system(size: 13))
+                        Text(tab.rawValue).font(.system(size: 9))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .foregroundColor(selectedTab == tab ? .accentColor : .secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .background(.secondary.opacity(0.05))
+    }
+}
 
-    private var ringGrid: some View {
+// MARK: - Overview Tab
+
+struct OverviewTab: View {
+    @ObservedObject var monitor: SystemMonitor
+
+    var body: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 12) {
+                ringRow
+                sparklines
+                Divider()
+                batteryAndThermal
+                Divider()
+                networkSection
+                if monitor.gpuTotalMB > 0 {
+                    Divider()
+                    gpuSection
+                }
+                Spacer(minLength: 8)
+            }
+            .padding(14)
+        }
+        .onAppear { monitor.refreshGPU() }
+    }
+
+    // MARK: Rings
+
+    private var ringRow: some View {
         HStack(spacing: 8) {
-            RingCard(
-                icon: "cpu",
-                title: "CPU",
-                value: monitor.cpuUsage,
-                detail: String(format: "%.1f%%", monitor.cpuUsage)
-            )
-            RingCard(
-                icon: "memorychip",
-                title: "RAM",
-                value: monitor.ramUsagePercent,
-                detail: String(format: "%.1f/%.0fGB", monitor.ramUsedGB, monitor.ramTotalGB)
-            )
-            RingCard(
-                icon: "internaldrive",
-                title: "Disco",
-                value: monitor.diskUsagePercent,
-                detail: String(format: "%.0f/%.0fGB", monitor.diskUsedGB, monitor.diskTotalGB)
-            )
+            RingCard(icon: "cpu",          title: "CPU",   value: monitor.cpuUsage,
+                     detail: String(format: "%.1f%%", monitor.cpuUsage))
+            RingCard(icon: "memorychip",   title: "RAM",   value: monitor.ramUsagePercent,
+                     detail: String(format: "%.1f/%.0fGB", monitor.ramUsedGB, monitor.ramTotalGB))
+            RingCard(icon: "internaldrive",title: "Disco", value: monitor.diskUsagePercent,
+                     detail: String(format: "%.0f/%.0fGB", monitor.diskUsedGB, monitor.diskTotalGB))
         }
-        .padding(16)
     }
 
-    // MARK: - Network
+    // MARK: Sparklines
+
+    private var sparklines: some View {
+        VStack(spacing: 6) {
+            SparklineChart(data: monitor.cpuHistory, color: .blue,
+                           title: "CPU  (últimos 60 lecturas)",
+                           latest: String(format: "%.1f%%", monitor.cpuUsage))
+            SparklineChart(data: monitor.ramHistory, color: .purple,
+                           title: "RAM",
+                           latest: String(format: "%.1f%%", monitor.ramUsagePercent))
+        }
+    }
+
+    // MARK: Battery + Thermal
+
+    private var batteryAndThermal: some View {
+        VStack(spacing: 8) {
+            batteryRow
+            thermalRow
+        }
+    }
+
+    private var batteryRow: some View {
+        HStack(spacing: 8) {
+            Image(systemName: batterySymbol)
+                .foregroundStyle(batteryColor.gradient)
+                .font(.system(size: 15))
+            Text("Batería").font(.subheadline)
+            Spacer()
+            if monitor.batteryConnected {
+                Text(monitor.batteryCharging ? "Cargando" : "Enchufado")
+                    .font(.caption).foregroundColor(.secondary)
+            }
+            Text("\(monitor.batteryPercent)%")
+                .font(.system(.caption, design: .monospaced, weight: .bold))
+                .foregroundColor(batteryColor)
+        }
+    }
+
+    private var batterySymbol: String {
+        if monitor.batteryConnected && monitor.batteryCharging { return "battery.100.bolt" }
+        if monitor.batteryPercent > 75 { return "battery.100" }
+        if monitor.batteryPercent > 50 { return "battery.75" }
+        if monitor.batteryPercent > 25 { return "battery.50" }
+        if monitor.batteryPercent > 10 { return "battery.25" }
+        return "battery.0"
+    }
+
+    private var batteryColor: Color {
+        monitor.batteryConnected ? .green :
+        monitor.batteryPercent > 20 ? .primary : monitor.batteryPercent > 10 ? .orange : .red
+    }
+
+    private var thermalRow: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "thermometer.medium").foregroundColor(thermalColor)
+            Text("Temperatura").font(.subheadline)
+            Spacer()
+            Text(thermalLabel)
+                .font(.caption.weight(.semibold)).foregroundColor(thermalColor)
+                .padding(.horizontal, 8).padding(.vertical, 3)
+                .background(Capsule().fill(thermalColor.opacity(0.15)))
+        }
+    }
+
+    private var thermalColor: Color {
+        switch monitor.thermalState {
+        case .nominal: return .green
+        case .fair:    return .yellow
+        case .serious: return .orange
+        case .critical: return .red
+        @unknown default: return .secondary
+        }
+    }
+
+    private var thermalLabel: String {
+        switch monitor.thermalState {
+        case .nominal: return "Normal"
+        case .fair:    return "Tibia"
+        case .serious: return "Caliente"
+        case .critical: return "Crítico"
+        @unknown default: return "Desconocido"
+        }
+    }
+
+    // MARK: Network
 
     private var networkSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Red", systemImage: "network")
-                .font(.subheadline.weight(.semibold))
+            Label("Red", systemImage: "network").font(.subheadline.weight(.semibold))
 
             HStack {
                 NetworkSpeedRow(icon: "arrow.down.circle.fill", color: .blue,
@@ -117,152 +210,89 @@ struct DetailView: View {
                 NetworkSpeedRow(icon: "arrow.up.circle.fill", color: .green,
                                 label: "Subida", speed: monitor.networkUpSpeed)
             }
-        }
-        .padding(16)
-    }
 
-    // MARK: - Process toggle row
-
-    private var processToggleRow: some View {
-        Button {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                showProcesses.toggle()
-            }
-        } label: {
-            HStack(spacing: 8) {
-                if ramIsHigh {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange.gradient)
-                } else {
-                    Image(systemName: "list.bullet.rectangle")
-                        .foregroundColor(.secondary)
-                }
-                Text(ramIsHigh ? "RAM alta — ver procesos" : "Procesos activos")
-                    .font(.subheadline.weight(ramIsHigh ? .semibold : .regular))
-                    .foregroundColor(ramIsHigh ? .orange : .primary)
-                Spacer()
-                Image(systemName: showProcesses ? "chevron.up" : "chevron.down")
-                    .font(.caption)
+            HStack(spacing: 6) {
+                Image(systemName: "wifi").font(.caption).foregroundColor(.secondary)
+                Text(monitor.networkInterface).font(.caption.weight(.semibold))
+                Text("·").foregroundColor(.secondary)
+                Text(monitor.localIP).font(.system(.caption, design: .monospaced))
                     .foregroundColor(.secondary)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Process list
-
-    private var processSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Column headers
-            HStack {
-                Text("Proceso")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Text("RAM")
-                    .frame(width: 64, alignment: .trailing)
-                Text("CPU")
-                    .frame(width: 50, alignment: .trailing)
-            }
-            .font(.system(size: 9, weight: .semibold))
-            .foregroundColor(.secondary)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 6)
-
-            if monitor.topRamProcesses.isEmpty {
-                HStack {
-                    ProgressView().scaleEffect(0.7)
-                    Text("Cargando…").font(.caption).foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(12)
-            } else {
-                ForEach(Array(monitor.topRamProcesses.enumerated()), id: \.element.id) { index, proc in
-                    ProcessRow(process: proc, index: index)
-                }
+                Spacer()
+                Button {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(monitor.localIP, forType: .string)
+                } label: {
+                    Image(systemName: "doc.on.doc").font(.caption)
+                }.buttonStyle(.plain).foregroundColor(.accentColor)
             }
         }
-        .padding(.bottom, 6)
     }
 
-    // MARK: - Settings
+    // MARK: GPU
 
-    private var settingsRow: some View {
-        HStack(spacing: 12) {
-            Toggle(isOn: $launchAtLogin) {
-                Label("Inicio automático", systemImage: "power.circle")
-                    .font(.subheadline)
-            }
-            .toggleStyle(.switch)
-            .controlSize(.small)
-            .onChange(of: launchAtLogin) { _, newValue in
-                do {
-                    if newValue { try SMAppService.mainApp.register() }
-                    else { try SMAppService.mainApp.unregister() }
-                } catch { launchAtLogin = !newValue }
-            }
-
+    private var gpuSection: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "rectangle.3.group.fill").foregroundStyle(.indigo.gradient)
+            Text("GPU").font(.subheadline)
             Spacer()
-
-            Button {
-                NSApp.terminate(nil)
-            } label: {
-                Label("Salir", systemImage: "xmark.circle.fill")
-                    .foregroundColor(.red)
-                    .font(.subheadline)
-            }
-            .buttonStyle(.plain)
+            Text(String(format: "%.0f / %.0f MB", monitor.gpuUsedMB, monitor.gpuTotalMB))
+                .font(.system(.caption, design: .monospaced, weight: .semibold))
+                .foregroundColor(.indigo)
         }
-        .padding(16)
     }
 }
 
-// MARK: - Process Row
+// MARK: - Sparkline
 
-struct ProcessRow: View {
-    let process: RunningProcess
-    let index: Int
-
-    private var ramColor: Color {
-        process.ramMB > 500 ? .red : process.ramMB > 200 ? .orange : .primary
-    }
-
-    private var formattedRAM: String {
-        process.ramMB >= 1024
-            ? String(format: "%.1f GB", process.ramMB / 1024)
-            : String(format: "%.0f MB", process.ramMB)
-    }
+struct SparklineChart: View {
+    let data: [Double]
+    let color: Color
+    let title: String
+    let latest: String
 
     var body: some View {
-        HStack(spacing: 8) {
-            // Rank indicator
-            Text("\(index + 1)")
-                .font(.system(size: 9, weight: .bold, design: .monospaced))
-                .foregroundColor(.secondary)
-                .frame(width: 14)
-
-            // Process name
-            Text(process.name)
-                .font(.system(size: 11))
-                .lineLimit(1)
-                .truncationMode(.middle)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            // RAM usage
-            Text(formattedRAM)
-                .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                .foregroundColor(ramColor)
-                .frame(width: 64, alignment: .trailing)
-
-            // CPU
-            Text(String(format: "%.1f%%", process.cpu))
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundColor(process.cpu > 20 ? .orange : .secondary)
-                .frame(width: 50, alignment: .trailing)
+        VStack(alignment: .leading, spacing: 3) {
+            HStack {
+                Text(title).font(.caption2.weight(.semibold)).foregroundColor(.secondary)
+                Spacer()
+                Text(latest).font(.system(.caption2, design: .monospaced, weight: .bold)).foregroundColor(color)
+            }
+            GeometryReader { geo in
+                ZStack {
+                    sparkFill(size: geo.size).fill(color.opacity(0.18))
+                    sparkLine(size: geo.size).stroke(color, style: StrokeStyle(lineWidth: 1.5, lineJoin: .round))
+                }
+            }
+            .frame(height: 34)
+            .background(RoundedRectangle(cornerRadius: 4).fill(.secondary.opacity(0.06)))
+            .clipShape(RoundedRectangle(cornerRadius: 4))
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 5)
-        .background(index % 2 == 0 ? Color.clear : Color.secondary.opacity(0.05))
+    }
+
+    private func points(size: CGSize) -> [CGPoint] {
+        guard data.count > 1 else { return [] }
+        let max = Swift.max(data.max() ?? 100, 1)
+        let step = size.width / CGFloat(data.count - 1)
+        return data.enumerated().map { i, v in
+            CGPoint(x: CGFloat(i) * step, y: size.height - size.height * CGFloat(v) / CGFloat(max))
+        }
+    }
+
+    private func sparkLine(size: CGSize) -> Path {
+        var p = Path()
+        let pts = points(size: size)
+        guard let first = pts.first else { return p }
+        p.move(to: first)
+        pts.dropFirst().forEach { p.addLine(to: $0) }
+        return p
+    }
+
+    private func sparkFill(size: CGSize) -> Path {
+        var p = sparkLine(size: size)
+        p.addLine(to: CGPoint(x: size.width, y: size.height))
+        p.addLine(to: CGPoint(x: 0, y: size.height))
+        p.closeSubpath()
+        return p
     }
 }
 
@@ -274,39 +304,25 @@ struct RingCard: View {
     let value: Double
     let detail: String
 
-    private var ringColor: Color {
-        value < 50 ? .green : value < 80 ? .orange : .red
-    }
+    private var ringColor: Color { value < 50 ? .green : value < 80 ? .orange : .red }
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 5) {
             ZStack {
-                Circle()
-                    .stroke(ringColor.opacity(0.15), lineWidth: 8)
+                Circle().stroke(ringColor.opacity(0.15), lineWidth: 8)
                 Circle()
                     .trim(from: 0, to: min(CGFloat(value) / 100, 1))
-                    .stroke(ringColor.gradient,
-                            style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                    .stroke(ringColor.gradient, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .animation(.easeInOut(duration: 0.6), value: value)
                 VStack(spacing: 1) {
-                    Image(systemName: icon)
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(ringColor.gradient)
-                    Text("\(Int(value))%")
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
-                        .foregroundColor(.primary)
+                    Image(systemName: icon).font(.system(size: 10, weight: .semibold)).foregroundStyle(ringColor.gradient)
+                    Text("\(Int(value))%").font(.system(size: 12, weight: .bold, design: .monospaced))
                 }
             }
-            .frame(width: 72, height: 72)
-
-            Text(title)
-                .font(.caption.weight(.semibold))
-            Text(detail)
-                .font(.system(size: 9, design: .monospaced))
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+            .frame(width: 70, height: 70)
+            Text(title).font(.caption.weight(.semibold))
+            Text(detail).font(.system(size: 9, design: .monospaced)).foregroundColor(.secondary).lineLimit(1).minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
@@ -317,30 +333,21 @@ struct RingCard: View {
 // MARK: - Network Speed Row
 
 struct NetworkSpeedRow: View {
-    let icon: String
-    let color: Color
-    let label: String
-    let speed: Double
-
-    private var formattedSpeed: String {
+    let icon: String; let color: Color; let label: String; let speed: Double
+    private var formatted: String {
         switch speed {
-        case ..<1_024:          return String(format: "%.0f B/s",   speed)
-        case ..<1_048_576:      return String(format: "%.1f KB/s",  speed / 1_024)
-        default:                return String(format: "%.2f MB/s",  speed / 1_048_576)
+        case ..<1_024:     return String(format: "%.0f B/s",  speed)
+        case ..<1_048_576: return String(format: "%.1f KB/s", speed / 1_024)
+        default:           return String(format: "%.2f MB/s", speed / 1_048_576)
         }
     }
-
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(color.gradient)
+            Image(systemName: icon).font(.system(size: 18)).foregroundStyle(color.gradient)
             VStack(alignment: .leading, spacing: 1) {
                 Text(label).font(.caption2).foregroundColor(.secondary)
-                Text(formattedSpeed)
-                    .font(.system(.caption, design: .monospaced, weight: .bold))
-                    .contentTransition(.numericText())
-                    .animation(.easeInOut(duration: 0.3), value: formattedSpeed)
+                Text(formatted).font(.system(.caption, design: .monospaced, weight: .bold))
+                    .contentTransition(.numericText()).animation(.easeInOut(duration: 0.3), value: formatted)
             }
         }
     }
