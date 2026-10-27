@@ -5,11 +5,13 @@ import SwiftUI
 enum AppTab: String, CaseIterable {
     case overview  = "Resumen"
     case processes = "Procesos"
+    case storage   = "Discos"
     case settings  = "Ajustes"
     var icon: String {
         switch self {
         case .overview:  return "chart.bar.fill"
         case .processes: return "list.bullet"
+        case .storage:   return "externaldrive.fill"
         case .settings:  return "gearshape.fill"
         }
     }
@@ -31,6 +33,7 @@ struct DetailView: View {
                 switch selectedTab {
                 case .overview:  OverviewTab(monitor: monitor)
                 case .processes: ProcessesView(monitor: monitor)
+                case .storage:   StorageTab()
                 case .settings:  SettingsView(monitor: monitor, prefs: prefs)
                 }
             }
@@ -59,7 +62,10 @@ struct DetailView: View {
                 } label: {
                     VStack(spacing: 3) {
                         Image(systemName: tab.icon).font(.system(size: 13))
-                        Text(tab.rawValue).font(.system(size: 9))
+                        Text(tab.rawValue)
+                            .font(.system(size: 9))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)

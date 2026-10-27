@@ -4,6 +4,7 @@ import ServiceManagement
 struct SettingsView: View {
     @ObservedObject var monitor: SystemMonitor
     @ObservedObject var prefs: Preferences
+    @ObservedObject private var workDisk = WorkDiskManager.shared
     @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
     @State private var copied = false
 
@@ -27,6 +28,11 @@ struct SettingsView: View {
 
                 sectionHeader("Sistema")
                 systemOptions
+
+                Divider().padding(.vertical, 8)
+
+                sectionHeader("Disco de trabajo")
+                workDiskSection
 
                 Divider().padding(.vertical, 8)
 
@@ -135,6 +141,45 @@ struct SettingsView: View {
             .padding(.horizontal, 12).padding(.vertical, 8)
         }
         .background(RoundedRectangle(cornerRadius: 10).fill(.secondary.opacity(0.07)))
+    }
+
+    // MARK: - Work disk
+
+    private var workDiskSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "externaldrive").frame(width: 22).foregroundColor(.accentColor)
+                Text("Ruta del volumen").font(.subheadline)
+                Spacer()
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(workDisk.isConnected ? Color.green : Color.orange)
+                        .frame(width: 6, height: 6)
+                    Text(workDisk.isConnected ? "Conectado" : "No conectado")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(workDisk.isConnected ? .green : .orange)
+                }
+            }
+            TextField("/Volumes/Extreme SSD", text: $prefs.workDiskPath)
+                .textFieldStyle(.roundedBorder)
+                .font(.system(.caption, design: .monospaced))
+                .onChange(of: prefs.workDiskPath) { _, _ in
+                    workDisk.refresh()
+                }
+            Text("Ahí se ejecuta la prueba de velocidad de la pestaña Discos. El valor habitual es un SSD externo.")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            if !workDisk.statusMessage.isEmpty {
+                Label(workDisk.statusMessage, systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption2)
+                    .foregroundColor(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 10).fill(.secondary.opacity(0.07)))
+        .onAppear { workDisk.refresh() }
     }
 
     // MARK: - Action buttons

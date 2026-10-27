@@ -14,4 +14,6 @@ class Preferences: ObservableObject {
     @AppStorage("ramThreshold")         var ramThreshold: Double = 80.0
     @AppStorage("diskThreshold")        var diskThreshold: Double = 90.0
     @AppStorage("notificationsEnabled") var notificationsEnabled: Bool = true
+    /// Volumen externo donde se trabaja y se mide la velocidad. Típico: un SSD USB.
+    @AppStorage("workDiskPath")         var workDiskPath: String = "/Volumes/Extreme SSD"
 }

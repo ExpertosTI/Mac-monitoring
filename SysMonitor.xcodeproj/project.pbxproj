@@ -14,6 +14,8 @@
 		B1000001 /* Preferences.swift in Sources */     = {isa = PBXBuildFile; fileRef = B2000001; };
 		B1000002 /* ProcessesView.swift in Sources */   = {isa = PBXBuildFile; fileRef = B2000002; };
 		B1000003 /* SettingsView.swift in Sources */    = {isa = PBXBuildFile; fileRef = B2000003; };
+		C1000001 /* WorkDiskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2000001; };
+		C1000002 /* StorageTab.swift in Sources */      = {isa = PBXBuildFile; fileRef = C2000002; };
 		F1000001 /* Metal.framework in Frameworks */    = {isa = PBXBuildFile; fileRef = F2000001; };
 		F1000002 /* WidgetKit.framework in Frameworks */= {isa = PBXBuildFile; fileRef = F2000002; };
 		W1000001 /* SysMonitorWidget.swift in Sources */= {isa = PBXBuildFile; fileRef = W2000001; };
@@ -45,6 +47,8 @@
 		B2000001 /* Preferences.swift */     = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift;    sourceTree = "<group>"; };
 		B2000002 /* ProcessesView.swift */   = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessesView.swift;  sourceTree = "<group>"; };
 		B2000003 /* SettingsView.swift */    = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift;   sourceTree = "<group>"; };
+		C2000001 /* WorkDiskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkDiskManager.swift; sourceTree = "<group>"; };
+		C2000002 /* StorageTab.swift */      = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTab.swift;      sourceTree = "<group>"; };
 		F2000001 /* Metal.framework */       = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework;   path = System/Library/Frameworks/Metal.framework;   sourceTree = SDKROOT; };
 		F2000002 /* WidgetKit.framework */   = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		W2000001 /* SysMonitorWidget.swift */= {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SysMonitorWidget.swift; sourceTree = "<group>"; };
@@ -74,6 +78,8 @@
 				B2000001 /* Preferences.swift */,
 				B2000002 /* ProcessesView.swift */,
 				B2000003 /* SettingsView.swift */,
+				C2000001 /* WorkDiskManager.swift */,
+				C2000002 /* StorageTab.swift */,
 				A2000005 /* Info.plist */,
 			);
 			path = SysMonitor;
@@ -179,6 +185,8 @@
 				B1000001,
 				B1000002,
 				B1000003,
+				C1000001,
+				C1000002,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
