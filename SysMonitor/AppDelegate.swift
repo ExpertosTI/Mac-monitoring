@@ -29,6 +29,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
 
         monitor.refresh()
+        // Observa montaje/desmontaje del disco de trabajo desde el arranque.
+        _ = WorkDiskManager.shared
         updateStatusBar()
         startTimer(interval: prefs.refreshInterval)
 
